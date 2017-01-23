@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public class CreateAssetBundle : Editor
 {
     [MenuItem("Example/Build Android")]
-    static void BuildAll()
+    static void BuildAndroid()
     {
         string outputPath = Application.dataPath + "/ABs";
         if (!Directory.Exists(outputPath))
@@ -20,7 +20,7 @@ public class CreateAssetBundle : Editor
     }
 
     [MenuItem("Example/Build Win64")]
-    static void BuildABs()
+    static void BuildWin64()
     {
         string outputPath = Application.dataPath + "/ABs";
         if (!Directory.Exists(outputPath))
@@ -28,7 +28,7 @@ public class CreateAssetBundle : Editor
             Directory.CreateDirectory(outputPath);
         }
         // Put the bundles in a folder called "ABs" within the Assets folder.
-        BuildPipeline.BuildAssetBundles("Assets/ABs", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows);
+        BuildPipeline.BuildAssetBundles("Assets/ABs", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
         AssetDatabase.Refresh();
     }
 
