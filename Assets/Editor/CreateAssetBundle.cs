@@ -29,7 +29,39 @@ public class CreateAssetBundle : Editor
         }
         // Put the bundles in a folder called "ABs" within the Assets folder.
         BuildPipeline.BuildAssetBundles("Assets/ABs", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
+
         // 压缩
+        string path = Application.dataPath + "/ABs";
+        DirectoryInfo folders = new DirectoryInfo(path);
+
+        DirectoryInfo[] dirInfo = folders.GetDirectories();
+        Debug.Log(dirInfo.Length); //文件夹数，不算文件
+
+        FileInfo[] fileInfo = folders.GetFiles();
+        Debug.Log(fileInfo.Length); //文件数，不算文件夹
+
+        //遍历文件夹
+        List<FileInfo> ignoreList = new List<FileInfo>();
+        FileInfo[] fileArray = folders.GetFiles();
+        for (int i = 0; i < fileArray.Length; i++)
+        {
+            ignoreList.Add(fileArray[i]);
+        }
+
+        for (int i = 0; i < dirInfo.Length; i++)
+        {
+            fileArray = dirInfo[i].GetFiles();
+            for (int t = 0; t < fileArray.Length; t++)
+            {
+                ignoreList.Add(fileArray[t]);
+            }
+        }
+        foreach (FileInfo fi in ignoreList)
+        {
+            if (fi.Name.Contains(".meta"))
+                fi.Delete();
+        }
+
         MyZip zip = new MyZip();
         zip.ZipFolder(Application.dataPath + "/ABs", Application.streamingAssetsPath + "/test.zip");
 
@@ -40,9 +72,5 @@ public class CreateAssetBundle : Editor
     static void CleanCache()
     {
         Caching.CleanCache();
-    }
-
-    static void Loader()
-    {
     }
 }
