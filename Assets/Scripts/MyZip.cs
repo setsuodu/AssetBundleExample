@@ -78,11 +78,10 @@ public class MyZip
     /// <param name="_outForlder">解压路径</param>
     public void UnZipFile(string _zipFile, string _outForlder)
     {
-        if (Directory.Exists(_outForlder))
+        if (!Directory.Exists(_outForlder))
         {
-            Directory.Delete(_outForlder, true);
+            Directory.CreateDirectory(_outForlder);
         }
-        Directory.CreateDirectory(_outForlder);
 
         progress = progressOverall = 0;
         Thread thread = new Thread(delegate ()

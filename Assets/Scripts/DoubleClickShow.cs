@@ -12,7 +12,7 @@ public class DoubleClickShow : MonoBehaviour
     void OnGUI()
     {
         Event Mouse = Event.current;
-        
+
         if (Mouse.isMouse && Mouse.type == EventType.MouseDown && Mouse.clickCount == 2)
         {
             animator.SetBool("toFire", true);

@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2415635229
+CRC: 1466758553
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 82988b959b7aad94e0934212ce6fb265
+    Hash: 6c553eb33b77be80d452458590458188
   TypeTreeHash:
     serializedVersion: 2
     Hash: 39f4e4ac6eb7621032e582fee5f880f3
@@ -40,5 +40,5 @@ ClassTypes:
 - Class: 137
   Script: {instanceID: 0}
 Assets:
-- Assets/tripods/tripodprefab.prefab
+- Assets/[Del] tripods/tripodprefab.prefab
 Dependencies: []

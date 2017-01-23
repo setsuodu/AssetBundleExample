@@ -35,10 +35,10 @@ public class CreateAssetBundle : Editor
         DirectoryInfo folders = new DirectoryInfo(path);
 
         DirectoryInfo[] dirInfo = folders.GetDirectories();
-        Debug.Log(dirInfo.Length); //文件夹数，不算文件
+        //Debug.Log(dirInfo.Length); //文件夹数，不算文件
 
         FileInfo[] fileInfo = folders.GetFiles();
-        Debug.Log(fileInfo.Length); //文件数，不算文件夹
+        Debug.Log("File Compressed: " + fileInfo.Length); //文件数，不算文件夹
 
         //遍历文件夹
         List<FileInfo> ignoreList = new List<FileInfo>();

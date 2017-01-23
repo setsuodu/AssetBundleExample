@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 2806638904
+CRC: 3484296172
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 4d977c64111affc6a2593bab27ded9ab
+    Hash: fb26169a302516abc58a72d32a3a1fc8
   TypeTreeHash:
     serializedVersion: 2
     Hash: d4e22bca998c188582dba61b6c905222
@@ -26,5 +26,5 @@ ClassTypes:
 - Class: 48
   Script: {instanceID: 0}
 Assets:
-- Assets/025 - Pikachu/Pikachu.prefab
+- Assets/[Del] 025 - Pikachu/Pikachu.prefab
 Dependencies: []
