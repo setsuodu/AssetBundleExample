@@ -29,6 +29,10 @@ public class CreateAssetBundle : Editor
         }
         // Put the bundles in a folder called "ABs" within the Assets folder.
         BuildPipeline.BuildAssetBundles("Assets/ABs", BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
+        // 压缩
+        MyZip zip = new MyZip();
+        zip.ZipFolder(Application.dataPath + "/ABs", Application.streamingAssetsPath + "/test.zip");
+
         AssetDatabase.Refresh();
     }
 
@@ -36,5 +40,9 @@ public class CreateAssetBundle : Editor
     static void CleanCache()
     {
         Caching.CleanCache();
+    }
+
+    static void Loader()
+    {
     }
 }

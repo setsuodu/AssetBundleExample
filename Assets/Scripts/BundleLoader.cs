@@ -8,7 +8,7 @@ public class BundleLoader : MonoBehaviour {
     public string bundleURL = "http://www.setsuodu.com/ABs/pikachu";
     public string assetName = "";
     AssetBundle bundle;
-    public Text mDebug;
+    //public Text mDebug;
 
     #region LoadFromCacheOrDownload下载或缓存方法
     void Start()
@@ -24,7 +24,7 @@ public class BundleLoader : MonoBehaviour {
         if (download.error != null)
         {
             Debug.Log("error : " + download.error);
-            mDebug.text = "error : " + download.error;
+            //mDebug.text = "error : " + download.error;
         }
         else
         {
