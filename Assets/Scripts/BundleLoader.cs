@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class BundleLoader : MonoBehaviour
 {
     public string CloudURL = "http://www.setsuodu.com/ABs/";
-    public string bundleURL, fileName, assetName, zipName;
+    public string bundleURL, fileName, assetName, zipName, ZipURL;
     AssetBundle bundle;
     WWW download, downloadOrCache;
     public bool isDownloadZip, isDecompress, isDownloadOrCache = false;
@@ -20,9 +20,10 @@ public class BundleLoader : MonoBehaviour
 
     MyZip zip = new MyZip();
     float testProgressOverall, testProgress;
-    
-    void Start()
+
+    public void getZipURL(string url)
     {
+        ZipURL = "http://192.168.0.227:9010/" + url;
     }
 
     // Listen the state of async works
@@ -65,8 +66,11 @@ public class BundleLoader : MonoBehaviour
     IEnumerator WriteZip()
     {
         Stream outStream = File.Create(Application.temporaryCachePath + "/test.zip");
-        download = new WWW(CloudURL + zipName + ".zip");
-        Debug.Log(CloudURL + zipName + ".zip");
+        //download = new WWW(CloudURL + zipName + ".zip"); getZipURL
+        //Debug.Log(CloudURL + zipName + ".zip");
+        download = new WWW(ZipURL);
+        Debug.Log(ZipURL);
+
         yield return download;
 
         if (download.error != null)
@@ -84,8 +88,6 @@ public class BundleLoader : MonoBehaviour
                 isDownloadZip = true;
                 Debug.Log("down");
             }
-            //Runtime中运行
-            //zip.UnZipFile(Application.streamingAssetsPath + "/test.zip", Application.streamingAssetsPath + "/");
         }
     }
 
@@ -93,7 +95,7 @@ public class BundleLoader : MonoBehaviour
     IEnumerator Zip()
     {
         StartCoroutine(WriteZip());
-        yield return new WaitUntil(functionDownload); zip.UnZipFile(Application.temporaryCachePath + "/" + zipName + ".zip", Application.streamingAssetsPath + "/");
+        yield return new WaitUntil(functionDownload); zip.UnZipFile(Application.temporaryCachePath + "/" + zipName + ".zip", Application.temporaryCachePath + "/");
     }
 
     void DecompressZip()
@@ -104,7 +106,10 @@ public class BundleLoader : MonoBehaviour
     private IEnumerator DownloadAndCache(string _fileName, string _assetName, int version = 1)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        bundleURL = "jar: file://" + Application.dataPath + "!/assets/" + _fileName;
+        Debug.Log(Application.temporaryCachePath + "/" + _fileName);
+        //bundleURL = "jar: file://" + Application.dataPath + "!/assets/" + _fileName;
+        bundleURL = Application.temporaryCachePath + "/" + _fileName;
+
 #elif UNITY_IPHONE && !UNITY_EDITOR
         bundleURL = "file://" + Application.dataPath + "/Raw/" + _fileName;
 #else
