@@ -32,7 +32,6 @@ public class BundleLoader : MonoBehaviour
         if (isDownloadZip)
         {
             percent = download.progress * 100;
-
             mDownload.text = "Download: " + percent.ToString("f0") + "%";
         }
 
@@ -65,7 +64,7 @@ public class BundleLoader : MonoBehaviour
 
     IEnumerator WriteZip()
     {
-        Stream outStream = File.Create(Application.temporaryCachePath + "/test.zip");
+        Stream outStream = File.Create(Application.persistentDataPath + "/test.zip");
         //download = new WWW(CloudURL + zipName + ".zip"); getZipURL
         //Debug.Log(CloudURL + zipName + ".zip");
         download = new WWW(ZipURL);
@@ -95,7 +94,7 @@ public class BundleLoader : MonoBehaviour
     IEnumerator Zip()
     {
         StartCoroutine(WriteZip());
-        yield return new WaitUntil(functionDownload); zip.UnZipFile(Application.temporaryCachePath + "/" + zipName + ".zip", Application.temporaryCachePath + "/");
+        yield return new WaitUntil(functionDownload); zip.UnZipFile(Application.persistentDataPath + "/" + zipName + ".zip", Application.persistentDataPath + "/");
     }
 
     void DecompressZip()
@@ -106,14 +105,15 @@ public class BundleLoader : MonoBehaviour
     private IEnumerator DownloadAndCache(string _fileName, string _assetName, int version = 1)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        Debug.Log(Application.temporaryCachePath + "/" + _fileName);
-        //bundleURL = "jar: file://" + Application.dataPath + "!/assets/" + _fileName;
-        bundleURL = Application.temporaryCachePath + "/" + _fileName;
+        Debug.Log("jar:file://" + Application.persistentDataPath + "/" + _fileName);
+        //bundleURL = "jar: file://" + Application.dataPath + "!/assets/" + _fileName; //只读
+        bundleURL = "file://" + Application.persistentDataPath + "/" + _fileName;
 
 #elif UNITY_IPHONE && !UNITY_EDITOR
         bundleURL = "file://" + Application.dataPath + "/Raw/" + _fileName;
 #else
-        bundleURL = "file://" + Application.streamingAssetsPath + "/" + _fileName;
+        bundleURL = "file://" + Application.streamingAssetsPath + "/" + _fileName; 
+        //bundleURL = "file://" + Application.persistentDataPath + "/" + _fileName;
         //bundleURL = "file://" + Application.temporaryCachePath + "/" + _fileName; //不行，报错
 #endif
         Debug.Log("AssetBundleUrl: " + bundleURL);
