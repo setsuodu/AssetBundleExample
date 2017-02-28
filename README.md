@@ -16,6 +16,9 @@ My assetbundle template. A good example to show the workflow in real project.
 ## API, platform path and permission
 
 Application.streamingAssetsPath
+
 Application.temporaryCachePath
+
 Application.persistentDataPath
+
 Application.dataPath
