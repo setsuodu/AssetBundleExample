@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 4029410143
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: tripod
+      Dependencies: {}
+    Info_1:
+      Name: pikachu
+      Dependencies: {}

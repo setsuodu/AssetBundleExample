@@ -18,7 +18,7 @@ public class BundleLoader : MonoBehaviour
     float percent, progress;
     public Text mDownload, mDecompress, mDownloadOrCache;
 
-    MyZip zip = new MyZip();
+    MyZip myZip = new MyZip();
     float testProgressOverall, testProgress;
 
     public void getZipURL(string url)
@@ -35,12 +35,12 @@ public class BundleLoader : MonoBehaviour
             mDownload.text = "Download: " + percent.ToString("f0") + "%";
         }
 
-        if ((testProgressOverall != zip.progressOverall) || (testProgress != zip.progress) && !isDecompress)
+        if ((testProgressOverall != myZip.progressOverall) || (testProgress != myZip.progress) && !isDecompress)
         {
-            testProgressOverall = zip.progressOverall;
-            testProgress = zip.progress;
+            testProgressOverall = myZip.progressOverall;
+            testProgress = myZip.progress;
             //mDecompress.text = string.Format("总进度: {0}%, 单个文件进度: {1}%", zip.progressOverall, zip.progress);
-            mDecompress.text = string.Format("Progress: {0}%", zip.progressOverall);
+            mDecompress.text = string.Format("Progress: {0}%", myZip.progressOverall);
             if (testProgress == 100)
             {
                 isDecompress = true;
@@ -94,7 +94,8 @@ public class BundleLoader : MonoBehaviour
     IEnumerator Zip()
     {
         StartCoroutine(WriteZip());
-        yield return new WaitUntil(functionDownload); zip.UnZipFile(Application.persistentDataPath + "/" + zipName + ".zip", Application.persistentDataPath + "/");
+        yield return new WaitUntil(functionDownload);
+        myZip.UnZipFile(Application.persistentDataPath + "/" + zipName + ".zip", Application.persistentDataPath + "/");
     }
 
     void DecompressZip()
