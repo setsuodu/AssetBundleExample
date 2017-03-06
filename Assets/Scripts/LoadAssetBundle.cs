@@ -5,18 +5,19 @@ using System.IO;
 
 public class LoadAssetBundle : MonoBehaviour
 {
-    private string cloudurl, url = "";
+    private string cloudUrl, localUrl = "";
+    public string fileName, assetName;
 
     void Awake()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        cloudurl = "http://www.setsuodu.com/ABs/Android/" + "tripod";
-        url = "file://" + Application.persistentDataPath + "/" + "tripod";
-#else
-        cloudurl = "http://www.setsuodu.com/ABs/X86/" + "tripod";
+        localUrl = "file://" + Application.persistentDataPath + "/" + fileName;
+        cloudUrl = "http://www.setsuodu.com/ABs/" + fileName;
+#elif UNITY_EDITOR
         //特别标注，PC上"file:// + Application.persistentDataPath"或"file:// + Application.temporaryCachePath"会导致无法读取。要"///"
         //"file:// + Application.streamingAssetsPath"能读
-        url = "file:///" + Application.persistentDataPath + "/" + "tripod";
+        localUrl = "file:///" + Application.persistentDataPath + "/" + fileName;
+        cloudUrl = "http://www.setsuodu.com/ABs/" + fileName;
 #endif
     }
 
@@ -29,22 +30,24 @@ public class LoadAssetBundle : MonoBehaviour
     public IEnumerator LoadAsset()
     {
         WWW www;
-        www = new WWW(cloudurl);
+        www = new WWW(cloudUrl);
+        Debug.Log("cloudUrl : " + cloudUrl);
         yield return www;
         if (www.error != null) Debug.Log(www.error);
         else
         {
-            SaveAssetBundle(www.bytes, "tripod");
+            SaveAssetBundle(www.bytes, fileName);
         }
 
-        www = new WWW(url);
+        www = new WWW(localUrl);
+        Debug.Log("localUrl : " + localUrl);
         yield return www;
         if (www.error != null) Debug.Log(www.error);
         else
         {
             AssetBundle bundle = www.assetBundle;
 
-            GameObject go = bundle.LoadAsset("tripodprefab", typeof(GameObject)) as GameObject;
+            GameObject go = bundle.LoadAsset(assetName, typeof(GameObject)) as GameObject;
             Instantiate(go);
         }
     }

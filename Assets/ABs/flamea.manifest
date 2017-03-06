@@ -1,0 +1,28 @@
+ManifestFileVersion: 0
+CRC: 2422922107
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 5fc0bc22c2e10ab723ca786620453a0b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 0c9cbe4b0b9a375d05846f3fe2c5c68d
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 198
+  Script: {instanceID: 0}
+- Class: 199
+  Script: {instanceID: 0}
+Assets:
+- Assets/FlameA/CFX_FlameA.prefab
+Dependencies: []

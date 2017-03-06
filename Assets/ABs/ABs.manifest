@@ -1,10 +1,7 @@
 ManifestFileVersion: 0
-CRC: 4029410143
+CRC: 1514626573
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: tripod
-      Dependencies: {}
-    Info_1:
-      Name: pikachu
+      Name: flamea
       Dependencies: {}
