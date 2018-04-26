@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using UnityEditor;
-using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 public class CreateAssetBundle : Editor
 {
@@ -111,6 +110,6 @@ public class CreateAssetBundle : Editor
     [MenuItem("Example/Clean Cache")]
     static void CleanCache()
     {
-        Caching.CleanCache();
+        Caching.ClearCache();
     }
 }
