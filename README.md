@@ -24,7 +24,8 @@ a template to show how to build and load assetbundle.
 - Application.dataPath
 
 ## LoadFromCacheOrDownload 各平台的缓存地址
-
-- Windows: C:\Users\user\AppData\LocalLow\Unity\CompanyName_ProjectName
-
-- Android: 
+平台    | 路径
+------- | ---
+Windows | C:\Users\user\AppData\LocalLow\Unity\CompanyName_ProjectName
+Android | \Android\data\PackageName\files\UnityCache\Shared
+iOS     | 
