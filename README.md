@@ -15,15 +15,16 @@ a template to show how to build and load assetbundle.
 
 ## API, platform path and permission
 
-Application.persistentDataPath
+- Application.persistentDataPath
 
-Application.temporaryCachePath
+- Application.temporaryCachePath
 
-Application.streamingAssetsPath
+- Application.streamingAssetsPath
 
-Application.dataPath
+- Application.dataPath
 
 ## LoadFromCacheOrDownload 各平台的缓存地址
 
-Windows: C:\Users\user\AppData\LocalLow\Unity\CompanyName_ProjectName
-Android: 
+- Windows: C:\Users\user\AppData\LocalLow\Unity\CompanyName_ProjectName
+
+- Android: 
