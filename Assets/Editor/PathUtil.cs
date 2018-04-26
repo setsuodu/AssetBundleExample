@@ -8,7 +8,6 @@ using UnityEngine;
 /// </summary>
 public class PathUtil
 {
-
     /// <summary>
     /// 获取assetbundle的输出目录
     /// </summary>
@@ -20,6 +19,7 @@ public class PathUtil
             Directory.CreateDirectory(outPath);
         return outPath;
     }
+
     /// <summary>
     /// 自动获取对应平台的路径
     /// </summary>
@@ -28,12 +28,12 @@ public class PathUtil
     {
         switch (Application.platform)
         {
-
             case RuntimePlatform.WindowsPlayer:
             case RuntimePlatform.WindowsEditor:
                 return Application.streamingAssetsPath;
-
             case RuntimePlatform.Android:
+                return Application.persistentDataPath;
+            case RuntimePlatform.IPhonePlayer:
                 return Application.persistentDataPath;
             default:
                 return null;
@@ -51,13 +51,15 @@ public class PathUtil
             case RuntimePlatform.WindowsPlayer:
             case RuntimePlatform.WindowsEditor:
                 return "Windows";
-
             case RuntimePlatform.Android:
                 return "Android";
+            case RuntimePlatform.IPhonePlayer:
+                return "iOS";
             default:
                 return null;
         }
     }
+
     /// <summary>
     /// 获取www协议的路径
     /// </summary>
@@ -68,9 +70,10 @@ public class PathUtil
             case RuntimePlatform.WindowsPlayer:
             case RuntimePlatform.WindowsEditor:
                 return "file:///" + GetAssetBundleOutPath();
-
             case RuntimePlatform.Android:
                 return "jar:file://" + GetAssetBundleOutPath();
+            case RuntimePlatform.IPhonePlayer:
+                return "file://" + GetAssetBundleOutPath();
             default:
                 return null;
         }

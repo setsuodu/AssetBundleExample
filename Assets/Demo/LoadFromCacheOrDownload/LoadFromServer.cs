@@ -16,9 +16,15 @@ public class LoadFromServer : MonoBehaviour
             return path;
         }
     }
-
+    private string absUrl
+    {
+        get
+        {
+            string url = string.Format("http://www.miereco.com/ABs/{0}/{0}", Application.platform); //Android/WindowsEditor
+            return url;
+        }
+    }
     string rootUrl = "http://www.miereco.com/ABs/android/";
-    string absUrl = "http://www.miereco.com/ABs/android/Windows";
     string url = "http://www.miereco.com/ABs/android/prefabs/sofa_1.unity3d"; //prefab资源路径
     string labelName = "prefabs/sofa_1.unity3d"; //要加载的prefab的label名
 
@@ -30,6 +36,11 @@ public class LoadFromServer : MonoBehaviour
     public void LoadAsset()
     {
         StartCoroutine(LoadManifest());
+    }
+
+    public void ClearCache()
+    {
+        Caching.ClearCache();
     }
 
     IEnumerator Download()
@@ -111,6 +122,8 @@ public class LoadFromServer : MonoBehaviour
 
     IEnumerator LoadManifest()
     {
+        Debug.Log(absUrl);
+
         WWW www = WWW.LoadFromCacheOrDownload(absUrl, 0);
         yield return www;
         AssetBundle ab = www.assetBundle;
@@ -212,4 +225,5 @@ public class LoadFromServer : MonoBehaviour
         //Debug.Log(bundleCacheList.Count); //0
         //return go;
     }
+
 }
