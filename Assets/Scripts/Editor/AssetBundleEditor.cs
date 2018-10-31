@@ -222,7 +222,7 @@ public class AssetBundleEditor : EditorWindow
 
         int index = fileInfo.FullName.IndexOf("Assets");
         string assetPath = fileInfo.FullName.Substring(index); //Assets/Sources/Materials/sofa_1.mat
-        //Debug.Log(assetPath);
+        Debug.Log(assetPath);
 
         // 6. 修改名称和后缀
         AssetImporter assetImporter = AssetImporter.GetAtPath(assetPath);

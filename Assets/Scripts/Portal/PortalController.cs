@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -29,6 +30,7 @@ public class DemoEditor : Editor
 public class PortalController : UnitySingletonClass<PortalController>
 {
     public ARPortalPlayer portalStatus = ARPortalPlayer.在门外;
+
     [SerializeField] GameObject avatar; //控制NPC行为树
     [Header("----- 角色随机出生点 -----"), SerializeField] Transform[] spawnPoints;
 

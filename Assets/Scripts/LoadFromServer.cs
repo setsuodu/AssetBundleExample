@@ -1,8 +1,7 @@
-﻿using System.Collections;
+﻿using System.IO;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LoadFromServer : MonoBehaviour
 {
@@ -54,6 +53,8 @@ public class LoadFromServer : MonoBehaviour
 
     #region 加载远程
 
+    public Dictionary<string, Material> matDictionary = new Dictionary<string, Material>();
+
     IEnumerator LoadManifest()
     {
         WWW www = WWW.LoadFromCacheOrDownload(mainAssetURL, 0); // 下载到 \Users\Administrator\AppData\LocalLow\Unity\CompanyName_ProductName
@@ -65,49 +66,74 @@ public class LoadFromServer : MonoBehaviour
     }
 
     // 云端加载AssetBundle，并实例化GameObject
-    IEnumerator RemoteBundle(string assetlabel)
+    IEnumerator RemoteBundle(string assetsLabel)
     {
         List<AssetBundle> bundleCacheList = new List<AssetBundle>();
-        string bundleName = string.Format("prefabs/{0}.assetbundle", assetlabel);
+        string bundleName = string.Format("prefabs/{0}.assetbundle", assetsLabel);
+        //Debug.Log(bundleName);
 
         // 注意：GetAllDependencies会返回直接和间接关联的AssetBundle
         // 1. 加载依赖包
         string[] dependence = manifest.GetAllDependencies(bundleName);
         for (int i = 0; i < dependence.Length; i++)
         {
-            string url0 = Path.Combine(baseURL, dependence[i]);
-            Debug.Log("<color=blue>" + url0 + "</color>");
+            string url0 = Path.Combine(baseURL, dependence[i]); //拼接依赖的路径
+            Debug.Log("<color=blue>" + url0 + "</color>\n" + manifest.GetAssetBundleHash(dependence[i]));
+
             WWW temp0 = WWW.LoadFromCacheOrDownload(url0, manifest.GetAssetBundleHash(dependence[i]));
-            //while (!temp0.isDone) { }
             yield return temp0;
             AssetBundle depend = temp0.assetBundle;
-            //AssetBundle depend = AssetBundle.LoadFromFile(Path.Combine(dir, dependence[i])); //从本地读取
 
-            //注意：这里不需要手动LoadAsset
-            //只需要加载AssetBundle即可
-            //Asset会在加载其它关联Asset时自动加载
+            // 注意：这里不需要手动LoadAsset
+            // 只需要加载AssetBundle即可
+            // Asset会在加载其它关联Asset时自动加载
             bundleCacheList.Add(depend);
+
+            if (dependence[i].Contains("materials"))
+            {
+                //Debug.Log(dependence[i]);
+                string key = dependence[i].Split('/')[1].Split('.')[0];
+                mat = depend.LoadAsset<Material>(key);
+                matDictionary.Add(key, mat); //16个
+            }
         }
 
         // 2. 加载prefab自己
-        //string url1 = baseURL + bundleName;
+        //string url1 = Path.Combine(baseURL, assetsLabel);
         string url1 = assetURL;
         Debug.Log("<color=green>" + url1 + "</color>");
         WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
         yield return temp1;
         AssetBundle bundle = temp1.assetBundle;
-        //AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(dir, bundleName));
         bundleCacheList.Add(bundle);
 
         // 实例化
-        Object asset = bundle.LoadAsset(assetlabel);
+        Debug.Log(assetsLabel);
+        Object asset = bundle.LoadAsset(assetsLabel);
         GameObject go = Instantiate(asset) as GameObject;
+        if (!go.GetComponent<FixShader>())
+            go.AddComponent<FixShader>();
+
+        // FixShader
+        for (int i = 0; i < go.GetComponentsInChildren<MeshRenderer>().Length; i++)
+        {
+            Material[] mats = go.GetComponentsInChildren<MeshRenderer>()[i].materials;
+            for (int t = 0; t < mats.Length; t++)
+            {
+                //Debug.Log(mats[t].name);
+                string key = mats[t].name.Split(' ')[0];
+                Material mat = matDictionary[key];
+                go.GetComponentsInChildren<MeshRenderer>()[i].materials[t] = mat;
+            }
+        }
+
+        yield return new WaitForEndOfFrame(); //必须加
 
         // 全部包释放掉
         for (int i = bundleCacheList.Count - 1; i >= 0; i--)
         {
-            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
             //bundleCacheList[i].Unload(true); //释放AssetBundle文件内存镜像同时销毁所有已经Load的Assets内存对象
+            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
             bundleCacheList[i] = null;
             bundleCacheList.Remove(bundleCacheList[i]); //List中移除
         }
@@ -115,7 +141,7 @@ public class LoadFromServer : MonoBehaviour
 
     public void LoadAsset()
     {
-        StartCoroutine(RemoteBundle("sofa_1")); // prefab/bundleName
+        StartCoroutine(RemoteBundle("portal")); // prefab/bundleName
     }
 
     public void ClearCache()
@@ -237,6 +263,74 @@ public class LoadFromServer : MonoBehaviour
         //Debug.Log(bundleCacheList.Count); //0
         return go;
     }
+
+    #region 各种类型加载测试
+
+    public Texture2D t2d = null;
+    public Material mat = null;
+    public GameObject sp;
+
+    [ContextMenu("LoadT2d")]
+    public void LoadT2d()
+    {
+        //StartCoroutine(LoadTexture2D());
+        StartCoroutine(LoadMaterial());
+    }
+
+    IEnumerator LoadTexture2D()
+    {
+        string assetsLabel = "bed";
+        string url1 = Path.Combine(baseURL, assetsLabel);
+        string bundleName = string.Format("textures/{0}.assetbundle", assetsLabel);
+        WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
+        yield return temp1;
+        AssetBundle bundle = temp1.assetBundle;
+        t2d = bundle.LoadAsset<Texture2D>(assetsLabel);
+        bundle.Unload(false);
+    }
+
+    IEnumerator LoadMaterial()
+    {
+        List<AssetBundle> bundleCacheList = new List<AssetBundle>();
+
+        string assetsLabel = "bed";
+        string bundleName = string.Format("materials/{0}.assetbundle", assetsLabel);
+        string[] dependence = manifest.GetAllDependencies(bundleName);
+        for (int i = 0; i < dependence.Length; i++)
+        {
+            string url0 = Path.Combine(baseURL, dependence[i]); //拼接依赖的路径
+            Debug.Log("<color=blue>" + url0 + "</color>\n" + manifest.GetAssetBundleHash(dependence[i]));
+
+            WWW temp0 = WWW.LoadFromCacheOrDownload(url0, manifest.GetAssetBundleHash(dependence[i]));
+            yield return temp0;
+            AssetBundle depend = temp0.assetBundle;
+
+            // 注意：这里不需要手动LoadAsset
+            // 只需要加载AssetBundle即可
+            // Asset会在加载其它关联Asset时自动加载
+            bundleCacheList.Add(depend);
+        }
+
+        string url1 = Path.Combine(baseURL, assetsLabel);
+        Debug.Log("<color=green>" + url1 + "</color>");
+        WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
+        yield return temp1;
+        AssetBundle bundle = temp1.assetBundle;
+        mat = bundle.LoadAsset<Material>(assetsLabel);
+        bundleCacheList.Add(bundle);
+
+        sp.GetComponent<MeshRenderer>().material = mat;
+
+        yield return new WaitForEndOfFrame();
+        for (int i = bundleCacheList.Count - 1; i >= 0; i--)
+        {
+            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
+            bundleCacheList[i] = null;
+            bundleCacheList.Remove(bundleCacheList[i]); //List中移除
+        }
+    }
+
+    #endregion
 }
 
 public enum BundlePlatform

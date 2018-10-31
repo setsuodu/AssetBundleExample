@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: f0d736aeb4a2e594bb24402db9147417
+guid: ca838eff8e06c6e4394e15784499a82d
 ShaderImporter:
   externalObjects: {}
   defaultTextures: []
   nonModifiableTextures: []
   userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  assetBundleName: shaders/standardstencilfilter
+  assetBundleVariant: assetbundle

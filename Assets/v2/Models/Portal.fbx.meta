@@ -46,6 +46,7 @@ ModelImporter:
     100080: pWall2
     100082: pWall3
     100084: pWall4
+    100086: portalWindow
     400000: case2
     400002: case4
     400004: case5
@@ -89,6 +90,7 @@ ModelImporter:
     400080: pWall2
     400082: pWall3
     400084: pWall4
+    400086: portalWindow
     2100000: lambert1
     2100002: floor1
     2100004: wall
@@ -141,6 +143,7 @@ ModelImporter:
     2300066: pWall2
     2300068: pWall3
     2300070: pWall4
+    2300072: portalWindow
     3300000: case2
     3300002: case4
     3300004: case5
@@ -177,6 +180,7 @@ ModelImporter:
     3300066: pWall2
     3300068: pWall3
     3300070: pWall4
+    3300072: portalWindow
     4300000: pDoor1
     4300002: pFloor1
     4300004: pHouse1
@@ -213,9 +217,85 @@ ModelImporter:
     4300066: pWall2
     4300068: pWall3
     4300070: pWall4
-  externalObjects: {}
+    4300072: portalWindow
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bed
+    second: {fileID: 2100000, guid: c890adc7c9ac78345a81b7a0eb2e7951, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: books
+    second: {fileID: 2100000, guid: b702f0eddc89dd94c8979c242b3e1ae6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: carpet
+    second: {fileID: 2100000, guid: b91a28c374274a540b5f55fa4bcd85e9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cases
+    second: {fileID: 2100000, guid: 152669d617842cf4b917efb907de75d2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cushion
+    second: {fileID: 2100000, guid: 5fe62e368a9ad8843ae37b0194f617f9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: desk
+    second: {fileID: 2100000, guid: 89515eb1a5913de4eac0442abf959070, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: electronics
+    second: {fileID: 2100000, guid: c9194e5d10df7b74f83900ba01668f7b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: floor1
+    second: {fileID: 2100000, guid: 48180fda04f3a2d4ab7f33e965026b98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: furniture
+    second: {fileID: 2100000, guid: 75a2a1089d5c22c4d93c162f0a8fdf39, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lambert1
+    second: {fileID: 2100000, guid: 408d33ceadad2f3458b560ff2846d2c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: objects
+    second: {fileID: 2100000, guid: 1c1b5fcfb61406d45a6ed545c3c1153e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: shelf
+    second: {fileID: 2100000, guid: a0dd58ccc8e7a224b854f28e8c772b98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wall
+    second: {fileID: 2100000, guid: 2850b8964671afe469710d26aa698da7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wardrobe
+    second: {fileID: 2100000, guid: 5d0e1a5a52dfa2b41a27230352f13dda, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: window
+    second: {fileID: 2100000, guid: 587a6d76388bc784ba2aa2384c74e7e4, type: 2}
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -293,5 +373,5 @@ ModelImporter:
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  assetBundleName: models/portal
+  assetBundleVariant: assetbundle

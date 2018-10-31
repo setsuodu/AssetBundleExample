@@ -12,7 +12,7 @@ public class FixShader : MonoBehaviour
         thisMaterial = new List<Material>(6);
         shaders = new List<string>(6);
 
-        MeshRenderer[] meshRenderer = GetComponentsInChildren<MeshRenderer>();
+        MeshRenderer[] meshRenderer = GetComponentsInChildren<MeshRenderer>(); //自动递归所有子层级
         int length = meshRenderer.Length;
 
         for (int i = 0; i < length; i++)

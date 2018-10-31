@@ -2,19 +2,53 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+#if UNITY_EDITOR
+using UnityEditor;
+[CustomEditor(typeof(PortalRoom))]
+public class PortalRoomEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector(); //显示默认所有参数
+
+        PortalRoom demo = (PortalRoom)target;
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Equal"))
+        {
+            demo.Equal();
+        }
+        if (GUILayout.Button("NotEqual"))
+        {
+            demo.NotEqual();
+        }
+        GUILayout.EndHorizontal();
+
+        //PortalRoom.stencilTest = (CompareFunction)EditorGUILayout.EnumPopup("Stencil Test", CompareFunction.Equal);
+    }
+}
+#endif
 
 public class PortalRoom : MonoBehaviour
 {
     public Material[] materials;
-    //private BoxCollider boxCollider;
-    //[SerializeField, Range(2, 10)] int horizontal = 2;
-    //[SerializeField, Range(2, 10)] int vertical = 2;
 
-    void Awake()
+    //public static CompareFunction stencilTest;
+
+    public void Equal()
     {
-        //boxCollider = GetComponent<BoxCollider>();
-        //boxCollider.size = new Vector3(horizontal, 2, vertical);
-        //boxCollider.center = new Vector3(0, 1, vertical / 2);
+        foreach (var mat in materials)
+        {
+            mat.SetInt("_StencilTest", (int)CompareFunction.Equal);
+        }
+    }
+
+    public void NotEqual()
+    {
+        foreach (var mat in materials)
+        {
+            mat.SetInt("_StencilTest", (int)CompareFunction.NotEqual);
+        }
     }
 
     void OnDestroy()
