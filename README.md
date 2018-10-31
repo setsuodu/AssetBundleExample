@@ -20,3 +20,8 @@ This template shows how to build and load AssetBundle.
 Windows | C:\Users\user\AppData\LocalLow\Unity\CompanyName_ProductName
 Android | \Android\data\PackageName\files\UnityCache\Shared
 iOS     | 
+
+## 关于Shader的AB包
+
+1. 打包前，将shader添加到GraphicsSettins/Always Included Shaders列表
+2. 加载时，动态添加到使用该材质的物体上，AddComponent(Fixshader)
