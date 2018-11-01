@@ -3,29 +3,24 @@
 ## Introduction
 
 This template shows how to build and load AssetBundle.
+Add dynamic lightmap bundle loading Demo;
 
 ## Steps
 
-1. Create AssetBundles;
-2. Copy all AssetBundles onto server;
-3. 读取总配置文件 ABs.manifest，获取文件hash;
-4. WWW.LoadFromCacheOrDownload() 或 UnityWebRequest.GetAssetBundle()，加载hash;
-5. LoadAsset;
-6. 实例化，释放资源Unload(false);
+1. Unity MenuBar -> AssetBundle -> Open Window;
+2. Set "输出平台" and "补丁版本", click "使用默认路径" to setup custom source path and output path;
+3. click "自动标记" to set the assetbundle assetLabel automaticly, as the format fileType/fileName.assetbunle;
+4. click "资源打包" to build assetbundle package to "/StreamingAssets/";
+5. copy the package(for example "v2") folder onto the server;
+6. setup the "baseURL" according to the directory structure of server;
+7. load main manifest at first, this file include all the dependencies and hash;
+8. use filename to query hash from manifest, then WWW.LoadFromCacheOrDownload() to load the dependencies, the file;
+9. unload(false) at last;
 
-> 缓存物理路径
+## Attention
 
-平台 | 路径
--- | --
-Windows | C:\Users\user\AppData\LocalLow\Unity\CompanyName_ProductName
-Android | \Android\data\PackageName\files\UnityCache\Shared
-iOS     | 
-
-## 关于Shader的AB包
-
-1. 打包前，将shader添加到GraphicsSettins/Always Included Shaders列表
-2. 加载时，动态添加到使用该材质的物体上，AddComponent(Fixshader)
-
-
-- 注意避免多个文件重名，ctrl+d造成2个文件有同样的AssetLabel，打包时会报错
-- json必须在场景中烘焙完成后的物体上生成。不能在Project资源目录下的物体上生成，Vector4没有值。
+1. if there are shaders bundle, put them to "Edit/Project Settings/Graphics/Always Included Shaders" before build assetbundle.
+2. dont put standard shader into "Always Included Shaders";
+3. if a meshrenderer linked a shader bundle, AddComponent<FixShader>() to the gameObject.
+4. don't make some object use a same AssetsLabel, it will make unity crash while building assetbundle.
+5. dynamic Lightmap load and use a json to load Int lightmapIndex and Vector4 lightmapScaleOffset. the json file must be generate after Generate Lighting when gameObject in the Hierarchy.
