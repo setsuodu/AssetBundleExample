@@ -25,3 +25,7 @@ iOS     |
 
 1. 打包前，将shader添加到GraphicsSettins/Always Included Shaders列表
 2. 加载时，动态添加到使用该材质的物体上，AddComponent(Fixshader)
+
+
+- 注意避免多个文件重名，ctrl+d造成2个文件有同样的AssetLabel，打包时会报错
+- json必须在场景中烘焙完成后的物体上生成。不能在Project资源目录下的物体上生成，Vector4没有值。

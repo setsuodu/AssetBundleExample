@@ -96,6 +96,12 @@ public class AssetBundleEditor : EditorWindow
         {
             DeleteAssetBundle();
         }
+
+        EditorGUILayout.Space();
+        if (GUILayout.Button("生成Lightmap配置", GUILayout.Width(200)))
+        {
+            GenerateLightmapSettings();
+        }
     }
 
     [MenuItem("AssetBundle/Open Window")]
@@ -341,6 +347,15 @@ public class AssetBundleEditor : EditorWindow
         */
 
         AssetDatabase.Refresh();
+    }
+
+    #endregion
+
+    #region Lightmap
+
+    static void GenerateLightmapSettings()
+    {
+
     }
 
     #endregion

@@ -43,12 +43,15 @@ public class LoadFromServer : MonoBehaviour
     [SerializeField] string patchName = "v1"; //补丁名称
     [SerializeField] string labelName = "prefabs/sofa_1"; //要加载资源的 assetLabel
     [SerializeField] BundlePlatform bundlePlatform = BundlePlatform.android;
-    [SerializeField] AssetBundle bundle = null;
     [SerializeField] AssetBundleManifest manifest = null;
+    [SerializeField] AssetBundle bundle = null;
 
     void Start()
     {
         StartCoroutine(LoadManifest());
+
+        //GameObject go = Resources.Load<GameObject>("Portal");
+        //Instantiate(go);
     }
 
     #region 加载远程
@@ -66,10 +69,10 @@ public class LoadFromServer : MonoBehaviour
     }
 
     // 云端加载AssetBundle，并实例化GameObject
-    IEnumerator RemoteBundle(string assetsLabel)
+    IEnumerator RemoteBundle(string fileName)
     {
         List<AssetBundle> bundleCacheList = new List<AssetBundle>();
-        string bundleName = string.Format("prefabs/{0}.assetbundle", assetsLabel);
+        string bundleName = string.Format("prefabs/{0}.assetbundle", fileName);
         //Debug.Log(bundleName);
 
         // 注意：GetAllDependencies会返回直接和间接关联的AssetBundle
@@ -83,11 +86,11 @@ public class LoadFromServer : MonoBehaviour
             WWW temp0 = WWW.LoadFromCacheOrDownload(url0, manifest.GetAssetBundleHash(dependence[i]));
             yield return temp0;
             AssetBundle depend = temp0.assetBundle;
+            bundleCacheList.Add(depend);
 
             // 注意：这里不需要手动LoadAsset
             // 只需要加载AssetBundle即可
             // Asset会在加载其它关联Asset时自动加载
-            bundleCacheList.Add(depend);
 
             if (dependence[i].Contains("materials"))
             {
@@ -99,8 +102,7 @@ public class LoadFromServer : MonoBehaviour
         }
 
         // 2. 加载prefab自己
-        //string url1 = Path.Combine(baseURL, assetsLabel);
-        string url1 = assetURL;
+        string url1 = Path.Combine(baseURL, bundleName);
         Debug.Log("<color=green>" + url1 + "</color>");
         WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
         yield return temp1;
@@ -108,8 +110,7 @@ public class LoadFromServer : MonoBehaviour
         bundleCacheList.Add(bundle);
 
         // 实例化
-        Debug.Log(assetsLabel);
-        Object asset = bundle.LoadAsset(assetsLabel);
+        Object asset = bundle.LoadAsset(fileName);
         GameObject go = Instantiate(asset) as GameObject;
         if (!go.GetComponent<FixShader>())
             go.AddComponent<FixShader>();
@@ -120,7 +121,7 @@ public class LoadFromServer : MonoBehaviour
             Material[] mats = go.GetComponentsInChildren<MeshRenderer>()[i].materials;
             for (int t = 0; t < mats.Length; t++)
             {
-                //Debug.Log(mats[t].name);
+                Debug.Log(mats[t].name);
                 string key = mats[t].name.Split(' ')[0];
                 Material mat = matDictionary[key];
                 go.GetComponentsInChildren<MeshRenderer>()[i].materials[t] = mat;
@@ -133,7 +134,7 @@ public class LoadFromServer : MonoBehaviour
         for (int i = bundleCacheList.Count - 1; i >= 0; i--)
         {
             //bundleCacheList[i].Unload(true); //释放AssetBundle文件内存镜像同时销毁所有已经Load的Assets内存对象
-            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
+            //bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
             bundleCacheList[i] = null;
             bundleCacheList.Remove(bundleCacheList[i]); //List中移除
         }
@@ -151,150 +152,62 @@ public class LoadFromServer : MonoBehaviour
 
     #endregion
 
-    IEnumerator Download()
-    {
-        WWW www = WWW.LoadFromCacheOrDownload(assetURL, 0);
-        yield return www;
-        AssetBundle ab = www.assetBundle;
-        AssetBundleManifest manifest = (AssetBundleManifest)ab.LoadAsset("AssetBundleManifest");
-        Debug.Log(manifest.GetAllAssetBundles().Length); //manifest中记录了所有资源（依赖关系），共19个
-        www.Dispose(); //释放www内存
-        //ab.Unload(false); //这里先不释放，后面还要用
-
-        //解析依赖列表
-        /*
-        string[] dependsFile = manifest.GetAllDependencies(labelName);
-        //Debug.LogFormat("有{0}个依赖", dependsFile.Length);
-        //加载依赖
-        AssetBundle[] dependsBundle = new AssetBundle[dependsFile.Length];
-        for (int i = 0; i < dependsFile.Length; i++)
-        {
-            //Debug.Log(dependsFile[i]);
-            //materials/sofa_1.unity3d
-            //models/sofa_1.unity3d
-            //textures/sofa_1.unity3d
-            string downloadUrl = Cdn + dependsFile[i];
-            Debug.Log(string.Format("depends{0}: {1}", i, dependsFile[i]));
-            WWW dwww = WWW.LoadFromCacheOrDownload(downloadUrl, manifest.GetAssetBundleHash(dependsFile[i]));
-            yield return dwww;
-            dependsBundle[i] = dwww.assetBundle;
-            dwww.Dispose(); //资源下载，要释放
-            dependsBundle[i].LoadAllAssets();
-        }
-        */
-
-        /*
-        string mainUrl = Cdn + labelName; //http://www.miereco.com/ABs/android/prefabs/sofa_1.unity3d
-        //WWW mwww = WWW.LoadFromCacheOrDownload(mainUrl, manifest.GetAssetBundleHash(labelName));
-        WWW mwww = WWW.LoadFromCacheOrDownload(url, 0);
-        yield return mwww;
-        AssetBundle bundle = mwww.assetBundle;
-        //AssetBundleManifest mani = (AssetBundleManifest)bundle.LoadAsset("AssetBundleManifest");
-        //Debug.Log(mani.GetAllAssetBundles().Length);
-        mwww.Dispose(); //资源下载，要释放
-
-        Debug.Log(bundle.GetAllAssetNames()[0]);
-        if (bundle.Contains("sofa_1.prefab"))
-        {
-            //确认AssetBundle中有指定预置对象
-            Debug.Log("ok!");
-            var asset = bundle.LoadAsset("sofa_1.unity3d"); //加载指定预置对象
-            Instantiate(asset); //实例化该预置对象
-        }
-        else
-        {
-            Debug.Log("failed.");
-        }
-        bundle.Unload(false);
-        */
-
-        Debug.Log(ab.GetAllAssetNames()[0]);
-        //assets/resources/prefabs/sofa_1.prefab
-        if (ab.Contains("sofa_1.prefab"))
-        {
-            //确认AssetBundle中有指定预置对象
-            Debug.Log("ok!");
-            var ob = ab.LoadAsset("sofa_1.prefab"); //加载指定预置对象
-            Instantiate(ob); //实例化该预置对象
-        }
-        else
-        {
-            Debug.Log("failed.");
-        }
-
-        ab.Unload(false); //释放assetbundle
-    }
-
-    // 本地加载AssetBundle，并实例化GameObject
-    public GameObject LocalBundle(string assetlabel)
-    {
-        List<AssetBundle> bundleCacheList = new List<AssetBundle>();
-        string bundleName = string.Format("prefabs/{0}.prefab", assetlabel);
-
-        //注意：GetAllDependencies会返回直接和间接关联的AssetBundle
-        //1. 加载依赖包
-        string[] dependence = manifest.GetAllDependencies(bundleName);
-        for (int i = 0; i < dependence.Length; ++i)
-        {
-            AssetBundle depend = AssetBundle.LoadFromFile(Path.Combine(dir, dependence[i])); //从本地读取
-            //注意：这里不需要手动LoadAsset
-            //只需要加载AssetBundle即可
-            //Asset会在加载其它关联Asset时自动加载
-            bundleCacheList.Add(depend);
-        }
-
-        //2. 加载prefab自己
-        AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(dir, bundleName));
-        bundleCacheList.Add(bundle);
-
-        //实例化
-        var asset = bundle.LoadAsset(assetlabel);
-        GameObject go = Instantiate(asset) as GameObject;
-
-        //包括模型，贴图，材质球...全部包释放掉
-        for (int i = bundleCacheList.Count - 1; i >= 0; i--)
-        {
-            //Debug.Log("[Remove][" + i + "]" + bundleCacheList[i].name);
-            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
-            //bundleCacheList[i].Unload(true); //释放AssetBundle文件内存镜像同时销毁所有已经Load的Assets内存对象
-            bundleCacheList[i] = null;
-            bundleCacheList.Remove(bundleCacheList[i]); //List中移除
-        }
-        //Debug.Log(bundleCacheList.Count); //0
-        return go;
-    }
-
     #region 各种类型加载测试
 
     public Texture2D t2d = null;
     public Material mat = null;
     public GameObject sp;
+    public Texture2D lightmap = null;
 
-    [ContextMenu("LoadT2d")]
-    public void LoadT2d()
+    [ContextMenu("LoadTexture2D")]
+    void LoadTexture2D()
     {
-        //StartCoroutine(LoadTexture2D());
-        StartCoroutine(LoadMaterial());
+        StartCoroutine(OnLoadTexture2D());
     }
 
-    IEnumerator LoadTexture2D()
-    {
-        string assetsLabel = "bed";
-        string url1 = Path.Combine(baseURL, assetsLabel);
-        string bundleName = string.Format("textures/{0}.assetbundle", assetsLabel);
-        WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
-        yield return temp1;
-        AssetBundle bundle = temp1.assetBundle;
-        t2d = bundle.LoadAsset<Texture2D>(assetsLabel);
-        bundle.Unload(false);
-    }
-
-    IEnumerator LoadMaterial()
+    IEnumerator OnLoadTexture2D()
     {
         List<AssetBundle> bundleCacheList = new List<AssetBundle>();
 
-        string assetsLabel = "bed";
-        string bundleName = string.Format("materials/{0}.assetbundle", assetsLabel);
+        string fileName = "bed";
+        string bundleName = string.Format("textures/{0}.assetbundle", fileName); // textures/bed.assetbundle
+        string[] dependence = manifest.GetAllDependencies(bundleName);
+        Debug.Log("dependence:" + dependence.Length);
+
+        string url1 = Path.Combine(baseURL, bundleName);
+        Debug.Log(url1);
+
+        WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
+        yield return temp1;
+        bundle = temp1.assetBundle;
+        //Debug.Log(bundle.GetAllAssetNames().Length);
+        //Debug.Log(bundle.GetAllAssetNames()[0]);
+
+        t2d = bundle.LoadAsset<Texture2D>("bed");
+        bundleCacheList.Add(bundle);
+
+        yield return new WaitForEndOfFrame();
+        for (int i = bundleCacheList.Count - 1; i >= 0; i--)
+        {
+            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
+            bundleCacheList[i] = null;
+            bundleCacheList.Remove(bundleCacheList[i]); //List中移除
+        }
+    }
+
+    [ContextMenu("LoadMaterial")]
+    void LoadMaterial()
+    {
+        StartCoroutine(OnLoadMaterial());
+    }
+
+    IEnumerator OnLoadMaterial()
+    {
+        List<AssetBundle> bundleCacheList = new List<AssetBundle>();
+
+        string fileName = "bed";
+        string bundleName = string.Format("materials/{0}.assetbundle", fileName);
+
         string[] dependence = manifest.GetAllDependencies(bundleName);
         for (int i = 0; i < dependence.Length; i++)
         {
@@ -311,15 +224,83 @@ public class LoadFromServer : MonoBehaviour
             bundleCacheList.Add(depend);
         }
 
-        string url1 = Path.Combine(baseURL, assetsLabel);
+        string url1 = Path.Combine(baseURL, bundleName);
         Debug.Log("<color=green>" + url1 + "</color>");
+
         WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
         yield return temp1;
-        AssetBundle bundle = temp1.assetBundle;
-        mat = bundle.LoadAsset<Material>(assetsLabel);
+        bundle = temp1.assetBundle;
+
+        mat = bundle.LoadAsset<Material>(fileName);
         bundleCacheList.Add(bundle);
 
         sp.GetComponent<MeshRenderer>().material = mat;
+
+        yield return new WaitForEndOfFrame();
+        for (int i = bundleCacheList.Count - 1; i >= 0; i--)
+        {
+            bundleCacheList[i].Unload(false);  //释放AssetBundle文件内存镜像
+            bundleCacheList[i] = null;
+            bundleCacheList.Remove(bundleCacheList[i]); //List中移除
+        }
+    }
+
+    [ContextMenu("SetLightmap")]
+    void SetLightmap()
+    {
+        Debug.Log(LightmapSettings.lightmaps.Length); //1
+        LightmapData[] lightmapData = new LightmapData[LightmapSettings.lightmaps.Length];
+        if (LightmapSettings.lightmaps.Length == 0)
+        {
+            lightmapData = new LightmapData[1];
+        }
+        for (int i = 0; i < lightmapData.Length; i++)
+        {
+            lightmapData[i] = new LightmapData();
+            lightmapData[i].lightmapColor = Resources.Load<Texture2D>("Lightmap-0_comp_dark"); //string_maps[i]
+        }
+        LightmapSettings.lightmaps = lightmapData;
+    }
+
+    [ContextMenu("LoadLightmap")]
+    void LoadLightmap()
+    {
+        StartCoroutine(OnLoadLighmap());
+    }
+
+    IEnumerator OnLoadLighmap()
+    {
+        List<AssetBundle> bundleCacheList = new List<AssetBundle>();
+
+        string fileName = "Lightmap-0_comp_light";
+        string bundleName = string.Format("lightmap/{0}.assetbundle", fileName);
+
+        string[] dependence = manifest.GetAllDependencies(bundleName);
+        for (int i = 0; i < dependence.Length; i++)
+        {
+            string url0 = Path.Combine(baseURL, dependence[i]); //拼接依赖的路径
+            Debug.Log("<color=blue>" + url0 + "</color>\n" + manifest.GetAssetBundleHash(dependence[i]));
+
+            WWW temp0 = WWW.LoadFromCacheOrDownload(url0, manifest.GetAssetBundleHash(dependence[i]));
+            yield return temp0;
+            AssetBundle depend = temp0.assetBundle;
+
+            // 注意：这里不需要手动LoadAsset
+            // 只需要加载AssetBundle即可
+            // Asset会在加载其它关联Asset时自动加载
+            bundleCacheList.Add(depend);
+        }
+
+        string url1 = Path.Combine(baseURL, bundleName);
+        Debug.Log("<color=green>" + url1 + "</color>");
+
+        WWW temp1 = WWW.LoadFromCacheOrDownload(url1, manifest.GetAssetBundleHash(bundleName));
+        yield return temp1;
+        bundle = temp1.assetBundle;
+        Debug.Log(bundle.GetAllAssetNames().Length + ":" + bundle.GetAllAssetNames()[0]);
+
+        lightmap = bundle.LoadAsset<Texture2D>(fileName);
+        bundleCacheList.Add(bundle);
 
         yield return new WaitForEndOfFrame();
         for (int i = bundleCacheList.Count - 1; i >= 0; i--)
