@@ -6,20 +6,20 @@ using UnityEditor;
 
 public class AssetBundleEditor : EditorWindow
 {
-    private static string _targetPath;
-    private static string targetPath
+    private static string _srcPath;
+    private static string srcPath
     {
         get
         {
-            if (string.IsNullOrEmpty(_targetPath))
+            if (string.IsNullOrEmpty(_srcPath))
             {
-                _targetPath = Path.Combine(Application.dataPath, patchName);
+                _srcPath = Path.Combine(Application.dataPath + "/AssetBundle/", patchName);
             }
-            return _targetPath;
+            return _srcPath;
         }
         set
         {
-            _targetPath = value;
+            _srcPath = value;
         }
     }
     private static string _outputPath;
@@ -45,7 +45,7 @@ public class AssetBundleEditor : EditorWindow
         {
             if (string.IsNullOrEmpty(_patchName))
             {
-                _patchName = "v1"; //补丁包名称
+                _patchName = "v2"; //补丁包名称
             }
             return _patchName;
         }
@@ -54,7 +54,7 @@ public class AssetBundleEditor : EditorWindow
             _patchName = value;
         }
     }
-    private static BuildTarget buildTarget = BuildTarget.Android;
+    private static BuildTarget buildTarget = BuildTarget.iOS;
 
     void OnGUI()
     {
@@ -67,13 +67,13 @@ public class AssetBundleEditor : EditorWindow
         EditorGUILayout.Space();
         if (GUILayout.Button("使用默认路径", GUILayout.Width(200)))
         {
-            _targetPath = "";
+            _srcPath = "";
             _outputPath = "";
         }
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("资源路径：");
-        targetPath = EditorGUILayout.TextField(targetPath);
+        srcPath = EditorGUILayout.TextField(srcPath);
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("输出路径：");
@@ -98,13 +98,13 @@ public class AssetBundleEditor : EditorWindow
         }
 
         EditorGUILayout.Space();
-        if (GUILayout.Button("生成Lightmap配置", GUILayout.Width(200)))
+        if (GUILayout.Button("清除所有标签", GUILayout.Width(200)))
         {
-            GenerateLightmapSettings();
+            ClearAssetBundlesName();
         }
     }
 
-    [MenuItem("AssetBundle/Open Window")]
+    [MenuItem("Tools/AssetBundle")]
     static void AddWindow()
     {
         // 创建窗口
@@ -136,15 +136,15 @@ public class AssetBundleEditor : EditorWindow
         AssetDatabase.RemoveUnusedAssetBundleNames();
 
         // 1. 找到资源所在的文件夹
-        DirectoryInfo directoryInfo = new DirectoryInfo(targetPath);
+        DirectoryInfo directoryInfo = new DirectoryInfo(srcPath);
         DirectoryInfo[] typeDirectories = directoryInfo.GetDirectories(); //资源类型
-        
+
         // 2. 遍历里面每个子文件夹
         foreach (DirectoryInfo childDirectory in typeDirectories)
         {
-            string typeDirectory = targetPath + "/" + childDirectory.Name;
-            DirectoryInfo sceneDirectoryInfo = new DirectoryInfo(typeDirectory);
-            //Debug.Log("<color=red>" + sceneDirectory + "</color>");
+            string typeDirectory = srcPath + "/" + childDirectory.Name;
+            DirectoryInfo sceneDirectoryInfo = new DirectoryInfo(typeDirectory); //一级目录
+            //Debug.Log("<color=red>" + typeDirectory + "</color>");
 
             // 错误检测
             if (sceneDirectoryInfo == null)
@@ -168,7 +168,7 @@ public class AssetBundleEditor : EditorWindow
         AssetDatabase.Refresh();
         Debug.LogWarning("设置成功");
     }
-    
+
     /// <summary>
     /// 记录配置文件
     /// </summary>
@@ -190,7 +190,7 @@ public class AssetBundleEditor : EditorWindow
     {
         if (!fileSystemInfo.Exists)
         {
-            Debug.LogError(fileSystemInfo.FullName + "不存在");
+            Debug.LogError(fileSystemInfo.FullName + ":不存在");
             return;
         }
         DirectoryInfo directoryInfo = fileSystemInfo as DirectoryInfo;
@@ -201,7 +201,8 @@ public class AssetBundleEditor : EditorWindow
             if (fileInfo == null)
             {
                 // 4. 如果找到的是文件夹, 递归直到没有文件夹
-                //Debug.Log("强转失败，是文件夹");
+                DirectoryInfo dirInfo = tempfileInfo as DirectoryInfo; //二级目录
+                //Debug.Log("强转失败，是文件夹:" + dirInfo);
                 onSceneFileSystemInfo(tempfileInfo, typeName, namePathDict);
             }
             else
@@ -222,13 +223,14 @@ public class AssetBundleEditor : EditorWindow
     {
         // 忽视unity自身生成的meta文件
         if (fileInfo.Extension == ".meta") return;
+        //Debug.Log(fileInfo); // ..\v2\Lightmap\home\Lightmap-0_comp_light.exr  => Lightmap\Lightmap-0_comp_light.exr
 
         string bundleName = getBundleName(fileInfo, typeName); //sofa_1.mat
-        //Debug.Log(bundleName);
+        //Debug.Log(bundleName); // 最终结果
 
         int index = fileInfo.FullName.IndexOf("Assets");
-        string assetPath = fileInfo.FullName.Substring(index); //Assets/Sources/Materials/sofa_1.mat
-        Debug.Log(assetPath);
+        string assetPath = fileInfo.FullName.Substring(index); // Assets/Sources/Materials/sofa_1.mat
+        //Debug.Log(assetPath);
 
         // 6. 修改名称和后缀
         AssetImporter assetImporter = AssetImporter.GetAtPath(assetPath);
@@ -268,27 +270,35 @@ public class AssetBundleEditor : EditorWindow
     {
         string windowPath = fileInfo.FullName;
         string unityPath = windowPath.Replace(@"\", "/"); //转斜杠 C:/Users/Administrator/Documents/GitHub/AssetBundleExample/Assets/Sources/Textures/trash_2.jpg
-        string bundlePath = Path.GetFileNameWithoutExtension(unityPath);
+
+        int Index = unityPath.IndexOf(typeName) + typeName.Length;
+        string bundlePath = unityPath.Substring(Index + 1);
+        //string bundlePath = Path.GetFileNameWithoutExtension(unityPath);
         //Debug.Log(fileInfo + " + " + typeName + " = " + bundlePath); //sofa_3.mat
+        //string result = Path.Combine(typeName, bundlePath);
 
-        /*
-        if (bundlePath.Contains("/"))
-        {
-            string[] temp = bundlePath.Split('/');
-            return bundlePath + "/" + temp[0];
-        }
-        else
-        {
-            return bundlePath;
-        }
-        */
-
-        string result = Path.Combine(typeName, bundlePath);
-        //Debug.Log(result);
-
+        var array = bundlePath.Split('.');
+        string bundlePathWithoutExt = array[0];
+        string result = Path.Combine(typeName, bundlePathWithoutExt);
+        Debug.Log(result);
         return result;
     }
-    
+
+    /// <summary>
+    /// 清除所有的AssetBundleName，由于打包方法会将所有设置过AssetBundleName的资源打包，所以自动打包前需要清理
+    /// </summary>
+    private static void ClearAssetBundlesName()
+    {
+        // 获取所有的AssetBundle名称
+        string[] abNames = AssetDatabase.GetAllAssetBundleNames();
+
+        // 强制删除所有AssetBundle名称
+        for (int i = 0; i < abNames.Length; i++)
+        {
+            AssetDatabase.RemoveAssetBundleName(abNames[i], true);
+        }
+    }
+
     #endregion
 
     #region 打包
